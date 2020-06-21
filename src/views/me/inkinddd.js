@@ -39,8 +39,8 @@ class inkinddd extends Component {
     }
     del = async (index) => {
         try {
-            let list=this.state.inlist
-            list.splice(index,1)
+            let list = this.state.inlist
+            list.splice(index, 1)
             this.setState({ inlist: list })
             await AsyncStorage.setItem("tags", JSON.stringify(this.state.inlist));
         } catch (e) {

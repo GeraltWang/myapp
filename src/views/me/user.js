@@ -25,7 +25,7 @@ class user extends Component {
 
     render() {
         return (
-            <ScrollView >
+            <ScrollView>
                 <Text h3 style={styles.text}>
                     亲,欢迎登录
                 </Text>

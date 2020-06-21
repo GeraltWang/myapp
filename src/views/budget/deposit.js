@@ -1,8 +1,105 @@
 import React, { Component } from 'react';
-import { View, Text, ScrollView, StyleSheet } from 'react-native';
-import { Input, Icon, Button, Header } from 'react-native-elements'
+import { View, Text, ScrollView, StyleSheet, Alert } from 'react-native';
+import { Input, Icon, Button } from 'react-native-elements'
+import AsyncStorage from '@react-native-community/async-storage';
+import { Picker } from '@react-native-community/picker';
 
 class deposit extends Component {
+    constructor() {
+        super();
+        this.state = {
+            account: "",
+            loginstatus: false,
+            inlist: [],
+            paytype: 'income',
+            value: '',
+            name: '',
+            date: '',
+            mark: ''
+
+        };
+    }
+    componentDidMount() {
+        this.login();
+        this.showtag();
+        this.unFocusListen = this.props.navigation.addListener('focus', () => {
+            this.login();
+            this.showtag();
+
+
+        });
+
+
+    }
+    showtag = async () => {
+        let data = await AsyncStorage.getItem("tags");
+        if (data) {
+            this.setState({
+                inlist: JSON.parse(data)
+            });
+        } else {
+            this.setState({
+                inlist: [
+                    { name: '暂无数据请点击下方按钮添加' }
+                ]
+            });
+        }
+    };
+    login = async () => {
+        let na = await AsyncStorage.getItem("account");
+        if (na) {
+            this.setState({
+                account: na,
+                loginstatus: true
+            });
+        } else {
+            this.setState({
+                account: '请登录',
+                loginstatus: false
+            });
+        }
+    };
+    handleChangeMoney = (value) => {
+        console.log('输入的值：', value);
+        this.setState({ value: value });
+    }
+    handleChangeDate = (value) => {
+        console.log('输入的值：', value);
+        this.setState({ date: value });
+    }
+    handleChangeMark = (value) => {
+        console.log('输入的值：', value);
+        this.setState({ mark: value });
+    }
+    submitincome = async () => {
+        let incomeData = [];
+        let incomepic = []
+        try {
+            const value = await AsyncStorage.getItem('incomeData');
+            const value2 = await AsyncStorage.getItem('incomepic');
+            if (value !== null&&value2 !== null) {
+                incomeData = JSON.parse(value);
+                incomepic = JSON.parse(value2)
+                console.log(value);
+            }
+            incomeData.push({ paytype: this.state.paytype, value: this.state.value, name: this.state.name, date: this.state.date, mark: this.state.mark });
+            incomepic.push({ value: this.state.value, name: this.state.name })
+            await AsyncStorage.setItem('incomeData', JSON.stringify(incomeData));
+            await AsyncStorage.setItem('incomepic', JSON.stringify(incomepic));
+            console.log(incomeData);
+            console.log(incomepic);
+            Alert.alert('提示', '新增收入单成功');
+        } catch (e) {
+            console.log('error:', e);
+        }
+    }
+    test = async () => {
+        const tt = await AsyncStorage.getItem('incomeData');
+        console.log(tt);
+        // await AsyncStorage.removeItem('incomeData');
+        // await AsyncStorage.removeItem('incomepic');
+
+    }
     render() {
         return (
             <ScrollView>
@@ -17,9 +114,10 @@ class deposit extends Component {
                             color='gold'
                         />
                     }
+                    onChangeText={this.handleChangeMoney}
                 />
                 <Input
-                    placeholder='请选择类别'
+
                     label='类别'
                     leftIcon={
                         <Icon
@@ -28,6 +126,22 @@ class deposit extends Component {
                             size={24}
                             color='#8CCFE9'
                         />
+                    }
+                    rightIcon={
+                        <Picker
+                            selectedValue={this.state.name}
+                            style={{ height: 50, width: 360, color: 'black' }}
+                            mode='dropdown'
+                            onValueChange={(itemValue, itemIndex) =>
+                                // this.setState({ type: itemValue }depositdata: {...depositdata, type:itemValue})
+                                this.setState({ name: itemValue })
+
+                            }
+                        >
+                            <Picker.Item label={'请选择'} value={'请选择'} />
+                            {this.state.inlist.map((item) => <Picker.Item label={item.name} value={item.name} />)}
+                        </Picker>
+
                     }
                 />
                 <Input
@@ -41,6 +155,7 @@ class deposit extends Component {
                             color='#E7A1AC'
                         />
                     }
+                    onChangeText={this.handleChangeDate}
                 />
                 <Input
                     placeholder='备注'
@@ -53,6 +168,7 @@ class deposit extends Component {
                             color='#F73957'
                         />
                     }
+                    onChangeText={this.handleChangeMark}
                 />
                 <View style={styles.buttoncontainer}>
                     <Button
@@ -66,6 +182,7 @@ class deposit extends Component {
                         }
                         title="确定"
                         buttonStyle={styles.button}
+                        onPress={() => this.submitincome()}
                     />
                     <Button
                         icon={
@@ -78,6 +195,7 @@ class deposit extends Component {
                         }
                         title="取消"
                         buttonStyle={styles.button2}
+                        onPress={() => this.test()}
                     />
                 </View>
 

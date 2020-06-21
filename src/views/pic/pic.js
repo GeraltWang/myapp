@@ -1,24 +1,44 @@
-import React from 'react';
-import {View, Text} from 'react-native';
+import React, { Component } from 'react';
+import { View, Text } from 'react-native';
+import { Avatar, Icon, ListItem, Header } from 'react-native-elements';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import SplashScreen from 'react-native-splash-screen'
+import depositpic from './depositpic'
+import withdrawpic from './withdrawpic'
 
-class Index extends React.Component{
-    componentDidMount(){
-        console.log('Index did mount');
-        this.unFocusListen = this.props.navigation.addListener('focus', ()=>{
-            console.log('Index get focus');
-        });
+
+const Tab = createMaterialTopTabNavigator();
+
+class pic extends Component {
+    componentDidMount() {
+        SplashScreen.hide();
     }
+    render() {
+        return (
+            <Tab.Navigator
+                initialRouteName="depositpic"
+                tabBarOptions={{
+                    activeTintColor: '#fff',
+                    indicatorStyle: { color: '#0AC775' },
+                    labelStyle: { fontSize: 16 },
+                    style: { backgroundColor: '#0AC775' },
+                    indicatorStyle: {backgroundColor: 'lightgray'}
+                }}
+            >
+                <Tab.Screen
+                    name="depositpic"
+                    component={depositpic}
+                    options={{ tabBarLabel: '收入' }}
+                />
+                <Tab.Screen
+                    name="withdrawpic"
+                    component={withdrawpic}
+                    options={{ tabBarLabel: '支出' }}
+                />
 
-    componentWillUnmount(){
-        console.log('Index will unmount');
-        this.unFocusListen();
-    }
-
-    render(){
-        return (<View>
-            <Text>微信</Text>
-        </View>);
+            </Tab.Navigator>
+        );
     }
 }
 
-export default Index;
+export default pic;

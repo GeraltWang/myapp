@@ -1,88 +1,205 @@
 import React, { Component } from 'react';
-import { View, Text, ScrollView, StyleSheet } from 'react-native';
-import { Input, Icon,Button } from 'react-native-elements'
+import { View, Text, ScrollView, StyleSheet, Alert } from 'react-native';
+import { Input, Icon, Button } from 'react-native-elements'
+import AsyncStorage from '@react-native-community/async-storage';
+import { Picker } from '@react-native-community/picker';
 
 class withdraw extends Component {
-    render() {
-        return (
-            <ScrollView>
-                <Input
-                    placeholder='请输入金额'
-                    label='金额'
-                    leftIcon={
-                        <Icon
-                            name='bank'
-                            type='antdesign'
-                            size={24}
-                            color='gold'
-                        />
-                    }
-                />
-                <Input
-                    placeholder='请选择类别'
-                    label='类别'
-                    leftIcon={
-                        <Icon
-                            name='appstore-o'
-                            type='antdesign'
-                            size={24}
-                            color='#8CCFE9'
-                        />
-                    }
-                />
-                <Input
-                    placeholder='请输入日期'
-                    label='日期'
-                    leftIcon={
-                        <Icon
-                            name='calendar'
-                            type='antdesign'
-                            size={24}
-                            color='#E7A1AC'
-                        />
-                    }
-                />
-                <Input
-                    placeholder='备注'
-                    label='说明'
-                    leftIcon={
-                        <Icon
-                            name='form'
-                            type='antdesign'
-                            size={24}
-                            color='#F73957'
-                        />
-                    }
-                />
-                <View style={styles.buttoncontainer}>
-                    <Button
-                        icon={
-                            <Icon
-                                name="check"
-                                type='antdesign'
-                                size={15}
-                                color="white"
-                            />
-                        }
-                        title="确定"
-                        buttonStyle={styles.button}
-                    />
-                    <Button
-                        icon={
-                            <Icon
-                                name="sync"
-                                type='antdesign'
-                                size={15}
-                                color="white"
-                            />
-                        }
-                        title="取消"
-                        buttonStyle={styles.button2}
-                    />
-                </View>
-            </ScrollView>
-        );
+    constructor() {
+        super();
+        this.state = {
+            account: "",
+            loginstatus: false,
+            outlist: [],
+            paytype: 'expend',
+            money: '',
+            type: '',
+            date: '',
+            mark: ''
+
+        }
+    };
+    componentDidMount() {
+        this.login();
+        this.showtag();
+        this.unFocusListen = this.props.navigation.addListener('focus', () => {
+            this.login();
+            this.showtag();
+
+
+        });
+
+
     }
+    showtag = async () => {
+        let data = await AsyncStorage.getItem("outtags");
+        if (data) {
+            this.setState({
+                outlist: JSON.parse(data)
+            });
+        } else {
+            this.setState({
+                outlist: [
+                    { name: '暂无数据请点击下方按钮添加' }
+                ]
+            });
+        }
+    };
+    login = async () => {
+        let na = await AsyncStorage.getItem("account");
+        if (na) {
+            this.setState({
+                account: na,
+                loginstatus: true
+            });
+        } else {
+            this.setState({
+                account: '请登录',
+                loginstatus: false
+            });
+        }
+    };
+    handleChangeMoney = (value) => {
+        console.log('输入的值：', value);
+        this.setState({ money: value });
+    }
+    handleChangeDate = (value) => {
+        console.log('输入的值：', value);
+        this.setState({ date: value });
+    }
+    handleChangeMark = (value) => {
+        console.log('输入的值：', value);
+        this.setState({ mark: value });
+    }
+    submitexpend = async () => {
+        let expendData = [];
+        try {
+            const value = await AsyncStorage.getItem('expendData');
+            if (value !== null) {
+                expendData = JSON.parse(value);
+                console.log(value);
+            }
+            expendData.push({ paytype: this.state.paytype, money: this.state.money, type: this.state.type, date: this.state.date, mark: this.state.mark });
+            await AsyncStorage.setItem('expendData', JSON.stringify(expendData));
+            console.log(expendData);
+            Alert.alert('提示', '新增支出单成功');
+            this.setState({
+                money: '',
+                mark: '',
+                date: '',
+                type: '',
+                paytype: 'expendData'
+            });
+        } catch (e) {
+            console.log('error:', e);
+        }
+    }
+    test = async () => {
+        const tt = await AsyncStorage.getItem('expendData');
+        console.log(tt);
+
+
+    }
+
+render() {
+    return (
+        <ScrollView>
+            <Input
+                placeholder='请输入金额'
+                label='金额'
+                leftIcon={
+                    <Icon
+                        name='bank'
+                        type='antdesign'
+                        size={24}
+                        color='gold'
+                    />
+                }
+                onChangeText={this.handleChangeMoney}
+            />
+            <Input
+                label='类别'
+                leftIcon={
+                    <Icon
+                        name='appstore-o'
+                        type='antdesign'
+                        size={24}
+                        color='#8CCFE9'
+                    />
+                }
+                rightIcon={
+                    <Picker
+                        selectedValue={this.state.type}
+                        style={{ height: 50, width: 360, color: 'black' }}
+                        mode='dropdown'
+                        onValueChange={(itemValue, itemIndex) =>
+                            this.setState({  type: itemValue  })
+
+                        }
+                    >
+                        <Picker.Item label={'请选择'} value={'请选择'} />
+                        {this.state.outlist.map((item) => <Picker.Item label={item.name} value={item.name} />)}
+                    </Picker>
+
+                }
+            />
+            <Input
+                placeholder='请输入日期'
+                label='日期'
+                leftIcon={
+                    <Icon
+                        name='calendar'
+                        type='antdesign'
+                        size={24}
+                        color='#E7A1AC'
+                    />
+                }
+                onChangeText={this.handleChangeDate}
+            />
+            <Input
+                placeholder='备注'
+                label='说明'
+                leftIcon={
+                    <Icon
+                        name='form'
+                        type='antdesign'
+                        size={24}
+                        color='#F73957'
+                    />
+                }
+                onChangeText={this.handleChangeMark}
+            />
+            <View style={styles.buttoncontainer}>
+                <Button
+                    icon={
+                        <Icon
+                            name="check"
+                            type='antdesign'
+                            size={15}
+                            color="white"
+                        />
+                    }
+                    title="确定"
+                    buttonStyle={styles.button}
+                    onPress={() => this.submitexpend()}
+                />
+                <Button
+                    icon={
+                        <Icon
+                            name="sync"
+                            type='antdesign'
+                            size={15}
+                            color="white"
+                        />
+                    }
+                    title="取消"
+                    buttonStyle={styles.button2}
+                    onPress={() => this.test()}
+                />
+            </View>
+        </ScrollView>
+    );
+}
 }
 
 const styles = StyleSheet.create({

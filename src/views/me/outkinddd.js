@@ -50,15 +50,15 @@ class outkinddd extends Component {
             <ScrollView>
                 <FlatList
                     data={this.state.outlist}
-                    renderItem={({ item,index }) => {
-                        return (<ListItem title={item.name} 
+                    renderItem={({ item, index }) => {
+                        return (<ListItem title={item.name}
                             rightIcon={<Icon
                                 name="minuscircle"
                                 type='antdesign'
                                 color='red'
                                 onPress={() => this.del(index)}
                             />
-                            }chevron bottomDivider />)
+                            } chevron bottomDivider />)
                     }}
                     keyExtractor={item => item.id}
 
