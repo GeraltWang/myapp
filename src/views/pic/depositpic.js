@@ -34,13 +34,8 @@ class depositpic extends Component {
                 series: [{
                     name: '收入',
                     type: 'pie',
-                    data: [
-                        // { value: 2.00, name: '1月' }, { value: 3.00, name: '2月' }, { value: 3.00, name: '3月' },
-                        // { value: 2.00, name: '4月' }, { value: 5.00, name: '5月' }, { value: 7.00, name: '6月' },
-                        // { value: 3.00, name: '7月' }, { value: 7.00, name: '8月' }, { value: 25.00, name: '9月' },
-                        // { value: 3, name: '10月' }, { value: 3, name: '11月' }, { value: 3, name: '12月' }
-                    ],
-                    data:[{"value":"123","name":"出行"},{"value":"1234","name":"学费"}]
+                    data:[{"value":"123","name":"出行"},{"value":"1234","name":"学费"}],
+                    // data:[{}]
                 }]
             }
         }

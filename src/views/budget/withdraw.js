@@ -79,7 +79,7 @@ class withdraw extends Component {
                 expendData = JSON.parse(value);
                 console.log(value);
             }
-            expendData.push({ paytype: this.state.paytype, money: this.state.money, type: this.state.type, date: this.state.date, mark: this.state.mark });
+            expendData.push({ paytype: this.state.paytype, value: this.state.money, name: this.state.type, date: this.state.date, mark: this.state.mark });
             await AsyncStorage.setItem('expendData', JSON.stringify(expendData));
             console.log(expendData);
             Alert.alert('提示', '新增支出单成功');
@@ -95,9 +95,9 @@ class withdraw extends Component {
         }
     }
     test = async () => {
-        const tt = await AsyncStorage.getItem('expendData');
-        console.log(tt);
-
+        // const tt = await AsyncStorage.getItem('expendData');
+        // console.log(tt);
+        await AsyncStorage.removeItem('expendData');
 
     }
 
