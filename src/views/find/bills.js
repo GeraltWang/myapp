@@ -51,7 +51,7 @@ class bills extends Component {
         let iie = ii.filter(item =>
             item.date.startsWith(this.state.year)
         )
-        let eee=ee.filter(item =>
+        let eee = ee.filter(item =>
             item.date.startsWith(this.state.year)
         )
         // console.log(ee);
@@ -100,7 +100,7 @@ class bills extends Component {
         // let new_month = {}
         // for (var i = 0; i < monthdata.length; i++) {
         //     var Month_index = monthdata[i].date.lastIndexOf('-');
-            
+
         //     var needdate = monthdata[i].date.substr(0, Month_index);
         //     if (!new_month[needdate]) {
         //         new_month[needdate] = [];
@@ -109,7 +109,7 @@ class bills extends Component {
         //         new_month[needdate].push(monthdata[i])
         //     }
         // }
-        
+
         // this.setState({ month: new_month })
         // console.log(this.state.month);
         // let monthkey = []
@@ -120,16 +120,26 @@ class bills extends Component {
         // this.setState({ monthkey: monthkey })
         let monthdata = ii.concat(ee)
         console.log(monthdata);
-        let new_month = {}
-        // let month_key=monthdata.map(item=>item.date.substring(0,7))
-        let month_key=Array.from(new Set(monthdata.map(item=>item.date.substring(0,7))))
-        
+        // let new_month = {}
+        let needArr = []
+        let month_key = Array.from(new Set(monthdata.map(item => item.date.substring(0, 7))))
         // month_key=monthdata.map(item=>item.date.substring(0,7))
         console.log(month_key);
-        
+        monthdata.filter(item => {
+            month_key.map(it => {
+                if (it == item.date.substring(0, 7)) {
+                    needArr.push(item)
+                }
+            })
+        })
+        // console.log(needArr);
+        // month_key.map(item => {
+            
+        // })
+        // console.log(needArr);
         // for (var i = 0; i < monthdata.length; i++) {
         //     var Month_index = monthdata[i].date.lastIndexOf('-');
-            
+
         //     var needdate = monthdata[i].date.substr(0, Month_index);
         //     if (!new_month[needdate]) {
         //         new_month[needdate] = [];
@@ -138,7 +148,7 @@ class bills extends Component {
         //         new_month[needdate].push(monthdata[i])
         //     }
         // }
-        
+
         // this.setState({ month: new_month })
         // console.log(this.state.month);
         // let monthkey = []

@@ -73,23 +73,21 @@ class withdraw extends Component {
     }
     submitexpend = async () => {
         let expendData = [];
+        let expendpic = []
         try {
             const value = await AsyncStorage.getItem('expendData');
-            if (value !== null) {
+            const value2 = await AsyncStorage.getItem('expendpic');
+            if (value !== null&&value2 !== null) {
                 expendData = JSON.parse(value);
+                expendpic = JSON.parse(value2)
                 console.log(value);
             }
             expendData.push({ paytype: this.state.paytype, value: this.state.money, name: this.state.type, date: this.state.date, mark: this.state.mark });
+            expendpic.push({ value: this.state.money, name: this.state.type })
             await AsyncStorage.setItem('expendData', JSON.stringify(expendData));
+            await AsyncStorage.setItem('expendpic', JSON.stringify(expendpic));
             console.log(expendData);
             Alert.alert('提示', '新增支出单成功');
-            this.setState({
-                money: '',
-                mark: '',
-                date: '',
-                type: '',
-                paytype: 'expendData'
-            });
         } catch (e) {
             console.log('error:', e);
         }
@@ -98,6 +96,7 @@ class withdraw extends Component {
         // const tt = await AsyncStorage.getItem('expendData');
         // console.log(tt);
         await AsyncStorage.removeItem('expendData');
+        await AsyncStorage.removeItem('expendpic');
 
     }
 

@@ -34,7 +34,7 @@ class depositpic extends Component {
                 series: [{
                     name: '收入',
                     type: 'pie',
-                    data:[{"value":"123","name":"出行"},{"value":"1234","name":"学费"}],
+                    data: [],
                     // data:[{}]
                 }]
             }
@@ -45,7 +45,7 @@ class depositpic extends Component {
         this.showdata();
         this.unFocusListen = this.props.navigation.addListener('focus', () => {
             // this.login();
-            // this.showdata();
+            this.showdata();
 
 
         });
@@ -56,14 +56,14 @@ class depositpic extends Component {
         let data = await AsyncStorage.getItem("incomepic");
         let data2 = await AsyncStorage.getItem("incomeData");
         console.log(data);
-        
+
         if (data) {
             this.setState({
                 inlist: JSON.parse(data),
                 inlist2: JSON.parse(data2),
             });
             console.log(this.state.inlist2);
-            
+
             let seriesdata = this.state.option;
             seriesdata.series.data = this.state.inlist;
             seriesdata.legend.data = this.state.inlist2;
@@ -72,7 +72,7 @@ class depositpic extends Component {
                 option: seriesdata
             })
             console.log(this.state.option.legend.data);
-            
+
         } else {
             this.setState({
                 inlist: [
@@ -83,27 +83,37 @@ class depositpic extends Component {
     };
 
     render() {
-        // const option = {
-        //     title: {
-        //         text: 'demo'
-        //     },
-        //     tooltip: {},
-        //     legend: {
-        //         data: ['销量']
-        //     },
-        //     // xAxis:{
-        //     //     data:["1","2","3","4","5","6"]
-        //     // },
-        //     // yAxis:{},
-        //     series: [{
-        //         name: '销量',
-        //         type: 'pie',
-        //         data: [5, 20, 36, 10, 10, 20]
-        //     }]
-        // }
+        const option = {
+            title: {
+                text: 'demo'
+            },
+            tooltip: {},
+            legend: {
+                orient: 'vertical',
+                // x: deviceWidth * 0.5,
+                y: 'center',
+                top: 220,
+                left: 10,
+                width: 90,
+                itemGap: 4.50,
+                color: '#666666',
+                itemWidth: 12,
+                itemHeight: 12,
+                // data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+                // data: ['出行', '学费'],
+
+                data: this.state.option.legend.data
+            },
+            series: [{
+                name: '收入',
+                type: 'pie',
+                data: this.state.option.series.data,
+                // data:[{}]
+            }]
+        }
         return (
             <View style={styles.page}>
-                <Echarts option={this.state.option} height={300} />
+                <Echarts option={option} height={300} />
             </View>
 
         );
