@@ -125,16 +125,36 @@ class bills extends Component {
         let month_key = Array.from(new Set(monthdata.map(item => item.date.substring(0, 7))))
         // month_key=monthdata.map(item=>item.date.substring(0,7))
         console.log(month_key);
-        monthdata.filter(item => {
-            month_key.map(it => {
-                if (it == item.date.substring(0, 7)) {
-                    needArr.push(item)
+        // monthdata.map(item => {
+        //     for(let i=0;i<month_key.length;i++){
+        //         if(item.date.substring(0,7)==month_key[i]){
+        //             needArr.push({})
+        //         }
+        //     }
+        // })
+        monthdata.forEach((item, i) => {
+            let index = -1;
+            let isExists = needArr.some((newItem, j) => {
+                if (item.date.substring(0, 7) == newItem.date) {
+                    index = j;
+                    return true;
                 }
             })
+            if (!isExists) {
+                needArr.push({
+                    date: item.date.substring(0, 7),
+                    subList: [item],
+                })
+            } else {
+                needArr[index].subList.push(item);
+            }
         })
-        // console.log(needArr);
+        // let totalArr = []
+        this.setState({ month: needArr })
+        console.log(needArr);
+
         // month_key.map(item => {
-            
+
         // })
         // console.log(needArr);
         // for (var i = 0; i < monthdata.length; i++) {
@@ -249,13 +269,13 @@ class bills extends Component {
                         <Text style={styles.listtitle}>结余</Text>
                     </View>
                 </View>
-                <View style={styles.containersec}>
-                    {/* {
-                        this.state.monthkey.map((item) => {
+                <View>
+                    {
+                        this.state.month.map(item => {
                             return (
                                 <View style={styles.listit}>
                                     <View style={styles.titleitem}>
-                                        <Text style={styles.listtitle}>{item}</Text>
+                                        <Text style={styles.listtitle}>{item.date}</Text>
                                     </View>
                                     <View style={styles.titleitem}>
                                         <Text style={styles.listtitle}>收入</Text>
@@ -269,31 +289,7 @@ class bills extends Component {
                                 </View>
                             )
                         })
-                    } */}
-                    <FlatList
-                        data={this.state.monthkey}
-                        renderItem={({ item, index }) => {
-                            return (
-                                <View style={styles.listit}>
-                                    <View style={styles.titleitem}>
-                                        <Text style={styles.listtitle}>{item}</Text>
-                                    </View>
-                                    <View style={styles.titleitem}>
-                                        <Text style={styles.listtitle}>收入</Text>
-                                    </View>
-                                    <View style={styles.titleitem}>
-                                        <Text style={styles.listtitle}>支出</Text>
-                                    </View>
-                                    <View style={styles.titleitem}>
-                                        <Text style={styles.listtitle}>结余</Text>
-                                    </View>
-                                </View>
-                            )
-                        }}
-                        keyExtractor={item => item.index}
-
-                    />
-
+                    }
                 </View>
             </View>
         );
