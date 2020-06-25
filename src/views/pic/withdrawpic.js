@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { Echarts } from 'react-native-secharts';
+import { Slider } from 'react-native-elements';
 import AsyncStorage from '@react-native-community/async-storage';
-
+import { FlatList } from 'react-native-gesture-handler';
 
 class withdrawpic extends Component {
     constructor(props) {
@@ -10,40 +11,16 @@ class withdrawpic extends Component {
         this.state = {
             outlist: [],
             outlist2: [],
-            option: {
-                title: {
-                    text: 'demo'
-                },
-                tooltip: {},
-                legend: {
-                    orient: 'vertical',
-                    // x: deviceWidth * 0.5,
-                    y: 'center',
-                    top: 220,
-                    left: 10,
-                    width: 90,
-                    itemGap: 4.50,
-                    color: '#666666',
-                    itemWidth: 12,
-                    itemHeight: 12,
-                    // data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
-                    // data: ['出行', '学费'],
-
-                    data: []
-                },
-                series: [{
-                    name: '支出',
-                    type: 'pie',
-                    data: []
-                }]
-            }
+            allexpend: 100,
+            data11: [],
+            data22: []
         }
     }
     componentDidMount() {
-        // this.login();
+
         this.showdata();
         this.unFocusListen = this.props.navigation.addListener('focus', () => {
-            // this.login();
+
             this.showdata();
 
 
@@ -54,23 +31,38 @@ class withdrawpic extends Component {
     showdata = async () => {
         let data = await AsyncStorage.getItem("expendpic");
         let data2 = await AsyncStorage.getItem("expendData");
-        console.log(data,data2);
+        console.log(data, data2);
 
         if (data) {
-            this.setState({
-                outlist: JSON.parse(data),
-                outlist2: JSON.parse(data2),
-            });
-            
-
-            let seriesdata = this.state.option;
-            seriesdata.series.data = this.state.outlist;
-            seriesdata.legend.data = this.state.outlist2;
-            // this.setState({...this.state.option.series, data: this.state.inlist});
-            this.setState({
-                option: seriesdata
+            let outlist = JSON.parse(data)
+            let outlist2 = JSON.parse(data2)
+            var newJrr = [];
+            outlist2.forEach(item => {
+                var dataItem = item;
+                if (newJrr.length > 0) {
+                    var filterValue = newJrr.filter(v => {
+                        return v.name == dataItem.name
+                    })
+                    if (filterValue.length > 0) {
+                        outlist2.forEach(n => {
+                            if (n.name == filterValue[0].name) {
+                                n.value = Number(filterValue[0].value) + Number(dataItem.value)
+                            }
+                        })
+                    } else {
+                        newJrr.push(dataItem)
+                    }
+                } else {
+                    newJrr.push(dataItem)
+                }
             })
-            console.log(this.state.option.legend.data);
+            console.log(newJrr);
+            this.setState({
+                data11: outlist,
+                data22: newJrr,
+                outlist: outlist,
+                allexpend: JSON.parse(data).reduce((p, e) => p + parseFloat(e.value), 0)
+            })
 
         } else {
             this.setState({
@@ -97,21 +89,39 @@ class withdrawpic extends Component {
                 color: '#666666',
                 itemWidth: 12,
                 itemHeight: 12,
-                // data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
-                // data: ['出行', '学费'],
 
-                data: this.state.option.legend.data
+                data: this.state.data11
             },
             series: [{
                 name: '支出',
                 type: 'pie',
-                data: this.state.option.series.data,
+                data: this.state.data22
                 // data:[{}]
             }]
         }
         return (
             <View style={styles.page}>
                 <Echarts option={option} height={300} />
+                <FlatList
+                    data={this.state.data22}
+                    keyExtractor={item => item.name}
+                    renderItem={({ item, index }) => {
+                        return (
+                            <View>
+                                <Slider style={{ width: 280, marginLeft: 66 }}
+                                    disabled
+                                    minimumValue={0}
+                                    maximumValue={this.state.allexpend}
+                                    value={Number(item.value)}
+                                    key={index + ''}
+                                />
+                                <Text style={{ marginLeft: 66 }}>
+                                    类别：{item.name} 金额：{item.value}
+                                </Text>
+                            </View>
+                        )
+                    }}
+                />
             </View>
         );
     }

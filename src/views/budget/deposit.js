@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { View, Text, ScrollView, StyleSheet, Alert } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Alert, TextInput } from 'react-native';
 import { Input, Icon, Button } from 'react-native-elements'
 import AsyncStorage from '@react-native-community/async-storage';
 import { Picker } from '@react-native-community/picker';
+import picker from 'react-native-picker';
 
 class deposit extends Component {
     constructor() {
@@ -15,7 +16,8 @@ class deposit extends Component {
             value: '',
             name: '',
             date: '',
-            mark: ''
+            mark: '',
+            key: new Date().getMilliseconds()
 
         };
     }
@@ -77,12 +79,14 @@ class deposit extends Component {
         try {
             const value = await AsyncStorage.getItem('incomeData');
             const value2 = await AsyncStorage.getItem('incomepic');
-            if (value !== null&&value2 !== null) {
+            if (value !== null && value2 !== null) {
                 incomeData = JSON.parse(value);
                 incomepic = JSON.parse(value2)
                 console.log(value);
             }
-            incomeData.push({ paytype: this.state.paytype, value: this.state.value, name: this.state.name, date: this.state.date, mark: this.state.mark });
+            var key = new Date()
+            var kd = key.getTime()
+            incomeData.push({ paytype: this.state.paytype, value: this.state.value, name: this.state.name, date: this.state.date, mark: this.state.mark, key: kd });
             incomepic.push({ value: this.state.value, name: this.state.name })
             await AsyncStorage.setItem('incomeData', JSON.stringify(incomeData));
             await AsyncStorage.setItem('incomepic', JSON.stringify(incomepic));
@@ -94,16 +98,56 @@ class deposit extends Component {
         }
     }
     test = async () => {
-        const tt = await AsyncStorage.getItem('incomeData');
-        console.log(tt);
-        // await AsyncStorage.removeItem('incomeData');
-        // await AsyncStorage.removeItem('incomepic');
+        // const tt = await AsyncStorage.getItem('incomeData');
+        // console.log(tt);
+        await AsyncStorage.removeItem('incomeData');
+        await AsyncStorage.removeItem('incomepic');
 
+    }
+    selectPicker = () => {
+        let data = []
+        var currDate = new Date()
+        var year = currDate.getFullYear()
+        let dateyear = []
+        for (let i = 2018; i <= year; i++) {
+            dateyear.push(i)
+        }
+        let dateday=[]
+        for(let i=31; i>0; i--){
+            dateday.push(i)
+        }
+        data = [
+            dateyear,
+            [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+            dateday
+        ]
+        picker.init({
+            pickerData: data,
+            selectedValue: [2020, 6],
+            pickerConfirmBtnText: '确定',
+            pickerCancelBtnText: '取消',
+            pickerTitleText: '请选择',
+            onPickerConfirm: data => {if(data[1]<10)
+                {var d='0'+data[1]
+                this.setState({ date: data[0] + '-' + d +'-'+data[2]})
+                
+            }
+                
+
+            },
+            onPickerCancel: () => {
+                console.log('取消');
+            }
+        });
+
+        picker.show();
     }
     render() {
         return (
             <ScrollView>
                 <Input
+                    keyboardType='number-pad'
+
                     placeholder='请输入金额'
                     label='金额'
                     leftIcon={
@@ -145,6 +189,8 @@ class deposit extends Component {
                     }
                 />
                 <Input
+                    onFocus={this.selectPicker}
+                    value={this.state.date}
                     placeholder='请输入日期'
                     label='日期'
                     leftIcon={

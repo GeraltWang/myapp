@@ -15,7 +15,8 @@ class withdraw extends Component {
             money: '',
             type: '',
             date: '',
-            mark: ''
+            mark: '',
+            key:new Date().getMilliseconds()
 
         }
     };
@@ -82,7 +83,9 @@ class withdraw extends Component {
                 expendpic = JSON.parse(value2)
                 console.log(value);
             }
-            expendData.push({ paytype: this.state.paytype, value: this.state.money, name: this.state.type, date: this.state.date, mark: this.state.mark });
+            var key=new Date()
+            var kd=key.getTime()
+            expendData.push({ paytype: this.state.paytype, value: this.state.money, name: this.state.type, date: this.state.date, mark: this.state.mark ,key:kd});
             expendpic.push({ value: this.state.money, name: this.state.type })
             await AsyncStorage.setItem('expendData', JSON.stringify(expendData));
             await AsyncStorage.setItem('expendpic', JSON.stringify(expendpic));

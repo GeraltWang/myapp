@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { View, Text, StyleSheet, ScrollView, Button, FlatList } from 'react-native';
 import { Avatar, Icon, ListItem, Header } from 'react-native-elements';
 import AsyncStorage from '@react-native-community/async-storage';
-import { Picker } from '@react-native-community/picker';
 import picker from 'react-native-picker';
 
 class bills extends Component {
@@ -10,6 +9,7 @@ class bills extends Component {
         super(props);
         this.state = {
             loginstatus: false,
+            datastatus: false,
             info: '登陆后显示',
             balance: '',
             income: '',
@@ -30,6 +30,11 @@ class bills extends Component {
             this.data();
         });
     }
+    _getyear() {
+        var currDate = new Date()
+        var year = currDate.getFullYear()
+        return year
+    }
     login = async () => {
         let na = await AsyncStorage.getItem("account");
         console.log(na);
@@ -44,146 +49,122 @@ class bills extends Component {
         }
     };
     data = async () => {
-        let income = await AsyncStorage.getItem("incomeData");
-        let expend = await AsyncStorage.getItem("expendData")
-        let ii = JSON.parse(income)
-        let ee = JSON.parse(expend)
-        let iie = ii.filter(item =>
-            item.date.startsWith(this.state.year)
-        )
-        let eee = ee.filter(item =>
-            item.date.startsWith(this.state.year)
-        )
-        // console.log(ee);
-        //加载收入数据
-        if (ii.length > 0) {
-            this.setState({
-                incomelist: ii.filter(item =>
-                    item.date.startsWith(this.state.year)
-                ),
-                income: iie.reduce((p, e) => p + parseFloat(e.value), 0)
-            })
-        } else {
-            this.setState({
-                incomelist: '暂无数据',
-                income: '暂无数据'
-            })
-        }
-        //加载支出数据
-        if (ee.length > 0) {
-            this.setState({
-                expendlist: ee.filter(item =>
-                    item.date.startsWith(this.state.year)
-                ),
-                expend: eee.reduce((p, e) => p + parseFloat(e.value), 0)
-
-            })
-        } else {
-            this.setState({
-                expendlist: '暂无数据',
-                expend: '暂无数据'
-            })
-        }
-        //计算结余
-        if (ee.length > 0 && ii.length > 0) {
-            this.setState({
-                balance: ii.filter(item =>
-                    item.date.startsWith(this.state.year)
-                ).reduce((p, e) => p + parseFloat(e.value), 0) - ee.filter(item =>
-                    item.date.startsWith(this.state.year)
-                ).reduce((p, e) => p + parseFloat(e.value), 0)
-            })
-        }
-        //计算月数据
-        // let monthdata = ii.concat(ee)
-        // console.log(monthdata);
-        // let new_month = {}
-        // for (var i = 0; i < monthdata.length; i++) {
-        //     var Month_index = monthdata[i].date.lastIndexOf('-');
-
-        //     var needdate = monthdata[i].date.substr(0, Month_index);
-        //     if (!new_month[needdate]) {
-        //         new_month[needdate] = [];
-        //         new_month[needdate].push(monthdata[i])
-        //     } else {
-        //         new_month[needdate].push(monthdata[i])
-        //     }
-        // }
-
-        // this.setState({ month: new_month })
-        // console.log(this.state.month);
-        // let monthkey = []
-        // for (let index in new_month) {
-        //     monthkey[monthkey.length] = index
-        // }
-        // console.log(monthkey);
-        // this.setState({ monthkey: monthkey })
-        let monthdata = ii.concat(ee)
-        console.log(monthdata);
-        // let new_month = {}
-        let needArr = []
-        let month_key = Array.from(new Set(monthdata.map(item => item.date.substring(0, 7))))
-        // month_key=monthdata.map(item=>item.date.substring(0,7))
-        console.log(month_key);
-        // monthdata.map(item => {
-        //     for(let i=0;i<month_key.length;i++){
-        //         if(item.date.substring(0,7)==month_key[i]){
-        //             needArr.push({})
-        //         }
-        //     }
-        // })
-        monthdata.forEach((item, i) => {
-            let index = -1;
-            let isExists = needArr.some((newItem, j) => {
-                if (item.date.substring(0, 7) == newItem.date) {
-                    index = j;
-                    return true;
-                }
-            })
-            if (!isExists) {
-                needArr.push({
-                    date: item.date.substring(0, 7),
-                    subList: [item],
+        try {
+            let income = await AsyncStorage.getItem("incomeData");
+            let expend = await AsyncStorage.getItem("expendData")
+            let ii = JSON.parse(income)
+            let ee = JSON.parse(expend)
+            let iie = ii.filter(item =>
+                item.date.startsWith(this.state.year)
+            )
+            let eee = ee.filter(item =>
+                item.date.startsWith(this.state.year)
+            )
+            // console.log(ee);
+            //加载收入数据
+            if (ii.length > 0) {
+                this.setState({ datastatus: true })
+                this.setState({
+                    incomelist: ii.filter(item =>
+                        item.date.startsWith(this.state.year)
+                    ),
+                    income: iie.reduce((p, e) => p + parseFloat(e.value), 0)
                 })
             } else {
-                needArr[index].subList.push(item);
+                this.setState({ datastatus: false })
+
+                this.setState({
+                    incomelist: '暂无数据',
+                    income: '暂无数据'
+                })
             }
-        })
-        // let totalArr = []
-        this.setState({ month: needArr })
-        console.log(needArr);
+            //加载支出数据
+            if (ee.length > 0) {
+                this.setState({
+                    expendlist: ee.filter(item =>
+                        item.date.startsWith(this.state.year)
+                    ),
+                    expend: eee.reduce((p, e) => p + parseFloat(e.value), 0)
 
-        // month_key.map(item => {
+                })
+            } else {
+                this.setState({
+                    expendlist: '暂无数据',
+                    expend: '暂无数据'
+                })
+            }
+            //计算结余
+            if (ee.length > 0 && ii.length > 0) {
+                this.setState({
+                    balance: ii.filter(item =>
+                        item.date.startsWith(this.state.year)
+                    ).reduce((p, e) => p + parseFloat(e.value), 0) - ee.filter(item =>
+                        item.date.startsWith(this.state.year)
+                    ).reduce((p, e) => p + parseFloat(e.value), 0)
+                })
+            }
+            //计算月数据
+            let monthdata = ii.concat(ee)
+            // console.log(monthdata);
+            
+            // let new_month = {}
+            let needArr = []
+            let month_key = Array.from(new Set(monthdata.map(item => item.date.substring(0, 7))))
+            // console.log(month_key);
+            // this.setState({ monthkey: month_key })
 
-        // })
-        // console.log(needArr);
-        // for (var i = 0; i < monthdata.length; i++) {
-        //     var Month_index = monthdata[i].date.lastIndexOf('-');
+            monthdata.forEach((item, i) => {
+                let index = -1;
+                let isExists = needArr.some((newItem, j) => {
+                    if (item.date.substring(0, 7) == newItem.date) {
+                        index = j;
+                        return true;
+                    }
+                })
+                if (!isExists) {
+                    needArr.push({
+                        date: item.date.substring(0, 7),
+                        subList: [item],
+                    })
+                } else {
+                    needArr[index].subList.push(item);
+                }
+            })
+            let need=needArr.filter(item=>item.date.startsWith(this.state.year))
+            // console.log(need,'bb');
+            
+            need.map(item => {
+                let inn = 0
+                let out = 0
+                for (let i = 0; i < item.subList.length; i++) {
+                    console.log(item.subList[i]);
+                    if (item.subList[i].paytype == 'income') {
+                        inn += parseFloat(item.subList[i].value)
+                    } else {
+                        out += parseFloat(item.subList[i].value)
+                    }
 
-        //     var needdate = monthdata[i].date.substr(0, Month_index);
-        //     if (!new_month[needdate]) {
-        //         new_month[needdate] = [];
-        //         new_month[needdate].push(monthdata[i])
-        //     } else {
-        //         new_month[needdate].push(monthdata[i])
-        //     }
-        // }
+                }
+                // console.log(inn);
+                // console.log(out);
+                item.income = inn
+                item.expend = out
+                item.balance = parseFloat(inn) - parseFloat(out)
+            })
+            this.setState({ month: need })
+            // console.log(this.state.month);
+        } catch (error) {
+            console.log(error);
 
-        // this.setState({ month: new_month })
-        // console.log(this.state.month);
-        // let monthkey = []
-        // for (let index in new_month) {
-        //     monthkey[monthkey.length] = index
-        // }
-        // console.log(monthkey);
-        // this.setState({ monthkey: monthkey })
-    }
-    in = () => {
+        }
+
+
+
+
 
     }
     selectPicker = () => {
         let data = [];
-        // one wheel
         for (let i = 2020; i >= 2000; i--) {
             data.push(i);
         }
@@ -194,8 +175,9 @@ class bills extends Component {
             pickerCancelBtnText: '取消',
             pickerTitleText: '请选择年',
             onPickerConfirm: data => {
-                this.setState({ year: data })
                 this.data()
+                this.setState({ year: data })
+                
                 console.log(this.state.year);
             },
             onPickerCancel: () => {
@@ -225,7 +207,7 @@ class bills extends Component {
                                 </View>
                                 <View>
                                     <Button title='请选择' onPress={this.selectPicker}></Button>
-                                    <Text>{this.state.year}</Text>
+                                    <Text style={styles.white}>{this.state.year}</Text>
                                 </View>
                             </View>)
                             :
@@ -243,16 +225,6 @@ class bills extends Component {
                                     <Text style={styles.font}>{this.state.info}</Text>
                                 </View>
                                 <Button title='请选择' onPress={this.selectPicker}></Button>
-                                {/* <Picker
-                                    selectedValue={this.state.year}
-                                    style={{ height: 50, width: 110, color: '#fff' }}
-                                    mode='dropdown'
-                                    onValueChange={(itemValue, itemIndex) =>
-                                        this.setState({ year: itemValue })
-                                    }>
-                                    <Picker.Item label="2020年" value="2020" />
-                                    <Picker.Item label="2019年" value="2019" />
-                                </Picker> */}
                             </View>)}
                 </View>
                 <View style={styles.containersec}>
@@ -270,25 +242,42 @@ class bills extends Component {
                     </View>
                 </View>
                 <View>
-                    {
-                        this.state.month.map(item => {
-                            return (
-                                <View style={styles.listit}>
+                    {this.state.datastatus ? (
+                        <FlatList
+                            data={this.state.month}
+                            keyExtractor={item => item.date}
+                            renderItem={( {item, index }) => {
+                                return (<View style={styles.listit}>
                                     <View style={styles.titleitem}>
                                         <Text style={styles.listtitle}>{item.date}</Text>
                                     </View>
                                     <View style={styles.titleitem}>
-                                        <Text style={styles.listtitle}>收入</Text>
+                                        <Text style={styles.listtitle}>{item.income}</Text>
                                     </View>
                                     <View style={styles.titleitem}>
-                                        <Text style={styles.listtitle}>支出</Text>
+                                        <Text style={styles.listtitle}>{item.expend}</Text>
                                     </View>
                                     <View style={styles.titleitem}>
-                                        <Text style={styles.listtitle}>结余</Text>
+                                        <Text style={styles.listtitle}>{item.balance}</Text>
                                     </View>
+                                </View>)
+                            }} />)
+                        : (
+                            <View style={styles.listit}>
+                                <View style={styles.titleitem}>
+                                    <Text style={styles.listtitle}>暂无数据</Text>
                                 </View>
-                            )
-                        })
+                                <View style={styles.titleitem}>
+                                    <Text style={styles.listtitle}>暂无数据</Text>
+                                </View>
+                                <View style={styles.titleitem}>
+                                    <Text style={styles.listtitle}>暂无数据</Text>
+                                </View>
+                                <View style={styles.titleitem}>
+                                    <Text style={styles.listtitle}>暂无数据</Text>
+                                </View>
+                            </View>
+                        )
                     }
                 </View>
             </View>
@@ -324,8 +313,9 @@ const styles = StyleSheet.create({
         // justifyContent: 'center',
         // alignItems: 'center'
     },
-    flex: {
-        // flex: 1
+    white: {
+        color: '#fff',
+        fontSize: 14
     },
     font: {
         color: '#fff',

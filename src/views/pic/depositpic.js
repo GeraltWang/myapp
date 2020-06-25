@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { Slider } from 'react-native-elements';
 import { Echarts } from 'react-native-secharts';
 import AsyncStorage from '@react-native-community/async-storage';
+import { FlatList } from 'react-native-gesture-handler';
 
 
 class depositpic extends Component {
@@ -10,34 +12,9 @@ class depositpic extends Component {
         this.state = {
             inlist: [],
             inlist2: [],
-            option: {
-                title: {
-                    text: 'demo'
-                },
-                tooltip: {},
-                legend: {
-                    orient: 'vertical',
-                    // x: deviceWidth * 0.5,
-                    y: 'center',
-                    top: 220,
-                    left: 10,
-                    width: 90,
-                    itemGap: 4.50,
-                    color: '#666666',
-                    itemWidth: 12,
-                    itemHeight: 12,
-                    // data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
-                    // data: ['出行', '学费'],
-
-                    data: []
-                },
-                series: [{
-                    name: '收入',
-                    type: 'pie',
-                    data: [],
-                    // data:[{}]
-                }]
-            }
+            allin: 100,
+            data11: [],
+            data22: []
         }
     }
     componentDidMount() {
@@ -58,20 +35,40 @@ class depositpic extends Component {
         console.log(data);
 
         if (data) {
-            this.setState({
-                inlist: JSON.parse(data),
-                inlist2: JSON.parse(data2),
-            });
-            console.log(this.state.inlist2);
-
-            let seriesdata = this.state.option;
-            seriesdata.series.data = this.state.inlist;
-            seriesdata.legend.data = this.state.inlist2;
-            // this.setState({...this.state.option.series, data: this.state.inlist});
-            this.setState({
-                option: seriesdata
+            let inlist = JSON.parse(data)
+            let inlist2 = JSON.parse(data2)
+            var newJrr = [];
+            inlist2.forEach(item => {
+                var dataItem = item;
+                if (newJrr.length > 0) {
+                    var filterValue = newJrr.filter(v => {
+                        return v.name == dataItem.name
+                    })
+                    if (filterValue.length > 0) {
+                        inlist2.forEach(n => {
+                            if (n.name == filterValue[0].name) {
+                                let zz=0
+                                zz= Number(filterValue[0].value) + Number(dataItem.value)
+                                n.value=zz
+                            }
+                        })
+                    } else {
+                        newJrr.push(dataItem)
+                    }
+                } else {
+                    newJrr.push(dataItem)
+                }
             })
-            console.log(this.state.option.legend.data);
+            console.log(newJrr);
+
+            this.setState({
+                data11: inlist,
+                data22: newJrr,
+                inlist: inlist,
+                allin: JSON.parse(data).reduce((p, e) => p + parseFloat(e.value), 0)
+            })
+            // this.setState({ allin: JSON.parse(data).reduce((p, e) => p + parseFloat(e.value), 0) })
+            console.log(this.state.allin);
 
         } else {
             this.setState({
@@ -90,8 +87,6 @@ class depositpic extends Component {
             tooltip: {},
             legend: {
                 orient: 'vertical',
-                // x: deviceWidth * 0.5,
-                y: 'center',
                 top: 220,
                 left: 10,
                 width: 90,
@@ -99,21 +94,39 @@ class depositpic extends Component {
                 color: '#666666',
                 itemWidth: 12,
                 itemHeight: 12,
-                // data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
-                // data: ['出行', '学费'],
-
-                data: this.state.option.legend.data
+                data: this.state.data11
             },
             series: [{
                 name: '收入',
                 type: 'pie',
-                data: this.state.option.series.data,
+                data: this.state.data22,
                 // data:[{}]
             }]
         }
         return (
             <View style={styles.page}>
                 <Echarts option={option} height={300} />
+                <FlatList
+                    data={this.state.data22}
+                    keyExtractor={item => item.name}
+                    renderItem={({ item, index }) => {
+                        return (
+                            <View>
+                                <Slider style={{ width: 280, marginLeft: 66 }}
+                                    disabled
+                                    minimumValue={0}
+                                    maximumValue={this.state.allin}
+                                    value={Number(item.value)}
+                                    key={index + ''}
+                                />
+                                <Text style={{ marginLeft: 66 }}>
+                                    类别：{item.name} 金额：{item.value}
+                                </Text>
+                            </View>
+                        )
+                    }}
+                />
+
             </View>
 
         );
